@@ -1,31 +1,1455 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q.M.P.L</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        header p {
-            margin: 5px 10px;
-            display: inline-block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sortear Livro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#161327;
+    --panel:#ffffff;
+    --panel-muted:#6b6478;
+    --accent:#1e1b3a;
+    --pill:#171331;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter', system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(900px 600px at 8% 8%, rgba(255,255,255,0.10), transparent 60%),
+      linear-gradient(155deg, #3b6bff 0%, #6a4dff 42%, #9b3ff0 72%, #c026d3 100%);
+    min-height:100vh;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  .decor{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+  }
+  .decor span{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.08);
+    filter:blur(1px);
+  }
+  .decor span:nth-child(1){ width:220px; height:220px; top:-60px; left:-60px; }
+  .decor span:nth-child(2){ width:160px; height:160px; top:18%; left:78%; background:rgba(255,255,255,0.06);}
+  .decor span:nth-child(3){ width:120px; height:120px; top:58%; left:6%; }
+  .decor span:nth-child(4){ width:300px; height:300px; bottom:-120px; right:-100px; background:rgba(255,255,255,0.07);}
+  .decor span:nth-child(5){ width:90px; height:90px; top:40%; left:85%; }
+  .decor span:nth-child(6){ width:70px; height:70px; bottom:12%; left:20%; }
+
+  .phone{
+    width:100%;
+    max-width:380px;
+    min-height:640px;
+    background:transparent;
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    padding:28px 26px 34px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  h1.title{
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    line-height:1.15;
+    max-width:220px;
+  }
+
+  .icon-btn{
+    width:44px;
+    height:44px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.22);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:background .15s ease, transform .15s ease;
+    color:#fff;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,0.22); }
+  .icon-btn:active{ transform:scale(0.94); }
+  .icon-btn svg{ width:20px; height:20px; }
+
+  .header-actions{
+    display:flex;
+    gap:8px;
+    flex-shrink:0;
+  }
+
+  .genre-chip-row{
+    margin-top:14px;
+  }
+  .genre-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.22);
+    color:#fff;
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .genre-chip svg{ width:13px; height:13px; }
+  .genre-chip.active{
+    background:#fff;
+    color:var(--accent);
+    border-color:#fff;
+  }
+
+  .pool-count{
+    font-size:12px;
+    color:rgba(255,255,255,0.72);
+    font-weight:600;
+    margin-top:-6px;
+  }
+
+  .genre-actions{
+    display:flex;
+    gap:8px;
+    padding:2px 20px 12px;
+  }
+  .genre-actions button{
+    flex:1;
+  }
+  .genre-select-btn{
+    padding:7px 13px;
+    border-radius:999px;
+    border:1px solid #e4e1eb;
+    background:#fff;
+    font-family:inherit;
+    font-size:12px;
+    font-weight:700;
+    color:var(--panel-muted);
+    cursor:pointer;
+  }
+  .genre-select-btn:hover{ background:#eeecf4; }
+
+  .stage{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    position:relative;
+    padding:20px 0;
+  }
+
+  .dial-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+  }
+
+  .dial{
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    background:linear-gradient(155deg, #23204a, #14122b);
+    box-shadow:
+      0 20px 45px -14px rgba(10,8,30,0.55),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:#fff;
+    transition:transform .12s ease;
+    position:relative;
+  }
+  .dial:active:not(:disabled){ transform:scale(0.96); }
+  .dial:disabled{ cursor:default; }
+  .dial svg{ width:56px; height:56px; }
+
+  .dial.spinning svg{
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+
+  .dial-label{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.85);
+  }
+
+  .result-card{
+    width:100%;
+    background:var(--panel);
+    border-radius:22px;
+    padding:20px;
+    color:var(--ink);
+    box-shadow:0 30px 60px -20px rgba(10,8,35,0.5);
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    opacity:0;
+    transform:translateY(18px);
+    animation:cardIn .45s cubic-bezier(.2,.9,.25,1) forwards;
+  }
+  @keyframes cardIn{
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .result-badge{
+    width:46px;
+    height:46px;
+    border-radius:13px;
+    background:var(--accent);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    gap:2px;
+  }
+  .result-badge svg{ width:18px; height:18px; }
+  .result-badge span{
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:0.06em;
+  }
+
+  .result-info{ flex:1; min-width:0; }
+  .result-info h2{
+    font-size:18px;
+    font-weight:800;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+  }
+  .result-info .author{
+    font-size:14px;
+    color:var(--panel-muted);
+    margin-top:2px;
+    font-weight:500;
+  }
+  .result-info .sub{
+    font-size:12px;
+    color:#a39fae;
+    margin-top:10px;
+    font-weight:500;
+  }
+  .result-genre{
+    display:inline-block;
+    margin-top:8px;
+    padding:4px 10px;
+    border-radius:999px;
+    background:#f2f1f6;
+    color:#6a5fd6;
+    font-size:11px;
+    font-weight:700;
+  }
+
+  .result-link{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    background:#f2f1f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--ink);
+    flex-shrink:0;
+    text-decoration:none;
+  }
+  .result-link svg{ width:15px; height:15px; }
+
+  .result-meta{
+    text-align:center;
+    font-size:14px;
+    font-weight:600;
+    color:rgba(255,255,255,0.92);
+    opacity:0;
+    animation:fadeIn .4s ease .15s forwards;
+  }
+  @keyframes fadeIn{ to{ opacity:1; } }
+
+  .actions{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    opacity:0;
+    animation:fadeIn .4s ease .2s forwards;
+  }
+
+  .btn-pill{
+    width:100%;
+    padding:14px;
+    border-radius:999px;
+    border:none;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:transform .12s ease, opacity .15s ease;
+  }
+  .btn-pill:active{ transform:scale(0.98); }
+
+  .btn-dark{
+    background:var(--pill);
+    color:#fff;
+  }
+  .btn-ghost{
+    background:rgba(255,255,255,0.14);
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.25);
+  }
+
+  .hint{
+    text-align:center;
+    font-size:12.5px;
+    color:rgba(255,255,255,0.7);
+    line-height:1.5;
+    padding:0 8px;
+  }
+
+  .empty-state{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .empty-state .emoji{ font-size:42px; }
+  .empty-state h3{ font-size:18px; font-weight:800; }
+  .empty-state p{ font-size:13.5px; color:rgba(255,255,255,0.78); max-width:260px; line-height:1.5; }
+
+  footer.stats{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    padding-top:8px;
+  }
+  .stat{
+    text-align:center;
+  }
+  .stat b{ display:block; font-size:16px; font-weight:800; }
+  .stat span{ font-size:10.5px; color:rgba(255,255,255,0.68); text-transform:uppercase; letter-spacing:0.06em; }
+
+  /* ===== Panel / Modal ===== */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,8,25,0.5);
+    backdrop-filter:blur(2px);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:20;
+  }
+  .overlay.open{ display:flex; }
+
+  .panel{
+    width:100%;
+    max-width:420px;
+    max-height:86vh;
+    background:#f6f5f9;
+    border-radius:26px 26px 0 0;
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    transform:translateY(100%);
+    transition:transform .28s cubic-bezier(.2,.9,.25,1);
+    overflow:hidden;
+  }
+  .overlay.open .panel{ transform:translateY(0); }
+
+  .panel-header{
+    padding:18px 20px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#f6f5f9;
+    border-bottom:1px solid #e8e6ee;
+  }
+  .panel-header h2{ font-size:17px; font-weight:800; }
+  .panel-close{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:#e9e7ef;
+    border:none;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .panel-close svg{ width:15px; height:15px; }
+
+  .panel-stats{
+    display:flex;
+    gap:10px;
+    padding:14px 20px 6px;
+  }
+  .pstat{
+    flex:1;
+    background:#fff;
+    border-radius:14px;
+    padding:10px 12px;
+    border:1px solid #ece9f2;
+  }
+  .pstat b{ display:block; font-size:18px; font-weight:800; }
+  .pstat span{ font-size:10.5px; color:var(--panel-muted); text-transform:uppercase; letter-spacing:0.05em; }
+
+  .panel-search{
+    padding:10px 20px;
+  }
+  .panel-search input{
+    width:100%;
+    padding:11px 14px;
+    border-radius:12px;
+    border:1px solid #e4e1eb;
+    background:#fff;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .panel-search input:focus{ outline:2px solid #6a4dff; outline-offset:-1px; }
+
+  .panel-tabs{
+    display:flex;
+    gap:8px;
+    padding:2px 20px 12px;
+  }
+  .tab-btn{
+    padding:7px 13px;
+    border-radius:999px;
+    border:1px solid #e4e1eb;
+    background:#fff;
+    font-family:inherit;
+    font-size:12px;
+    font-weight:700;
+    color:var(--panel-muted);
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+  }
+
+  .panel-list{
+    flex:1;
+    overflow-y:auto;
+    padding:4px 14px 10px;
+  }
+
+  .book-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 10px;
+    border-radius:14px;
+  }
+  .book-row:hover{ background:#eeecf4; }
+
+  .book-check{
+    width:26px; height:26px;
+    border-radius:8px;
+    border:1.5px solid #d6d2e2;
+    background:#fff;
+    flex-shrink:0;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    transition:background .12s ease, border-color .12s ease;
+  }
+  .book-check.checked{
+    background:#1fb15f;
+    border-color:#1fb15f;
+  }
+  .book-check svg{ width:14px; height:14px; opacity:0; transition:opacity .1s ease; }
+  .book-check.checked svg{ opacity:1; }
+
+  .book-info{ flex:1; min-width:0; }
+  .book-info .bt{
+    font-size:14px;
+    font-weight:700;
+    line-height:1.3;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .book-info.read .bt{ color:#a39fae; text-decoration:line-through; }
+  .book-info .ba{
+    font-size:12px;
+    color:var(--panel-muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .book-info .bg{
+    display:inline-block;
+    margin-top:3px;
+    font-size:10px;
+    font-weight:700;
+    color:#8b7fe0;
+    background:#efecfb;
+    padding:2px 7px;
+    border-radius:999px;
+  }
+
+  .book-del{
+    width:28px; height:28px;
+    border-radius:8px;
+    border:none;
+    background:transparent;
+    color:#c94b4b;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .book-del svg{ width:15px; height:15px; }
+
+  .panel-empty{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--panel-muted);
+    font-size:13.5px;
+  }
+
+  .panel-footer{
+    padding:14px 20px 22px;
+    border-top:1px solid #e8e6ee;
+    background:#f6f5f9;
+  }
+  .add-toggle{
+    width:100%;
+    padding:13px;
+    border-radius:14px;
+    border:none;
+    background:var(--accent);
+    color:#fff;
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .add-toggle svg{ width:16px; height:16px; }
+
+  .add-form{
+    display:none;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+  }
+  .add-form.open{ display:flex; }
+  .add-form input{
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid #e4e1eb;
+    background:#fff;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .add-form input:focus{ outline:2px solid #6a4dff; outline-offset:-1px; }
+  .add-form-row{ display:flex; gap:8px; }
+  .add-form-row button{
+    padding:12px;
+    border-radius:12px;
+    border:none;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .add-cancel{ background:#e9e7ef; color:var(--ink); flex:1; }
+  .add-save{ background:#1fb15f; color:#fff; flex:2; }
+
+  .feedback-body{
+    padding:16px 20px 6px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .feedback-hint{
+    font-size:13px;
+    color:var(--panel-muted);
+    line-height:1.5;
+  }
+  .feedback-hint strong{ color:var(--ink); }
+  #feedbackName{
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid #e4e1eb;
+    background:#fff;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+  }
+  #feedbackText{
+    padding:12px 14px;
+    border-radius:14px;
+    border:1px solid #e4e1eb;
+    background:#fff;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    resize:vertical;
+    min-height:110px;
+  }
+  #feedbackName:focus, #feedbackText:focus{ outline:2px solid #6a4dff; outline-offset:-1px; }
+
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#161327;
+    color:#fff;
+    padding:12px 20px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:0 12px 30px -10px rgba(0,0,0,0.5);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:50;
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  @media (max-width:400px){
+    .phone{ padding:22px 18px 28px; }
+    h1.title{ font-size:25px; }
+  }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .dial.spinning svg{ animation:none; }
+    .result-card{ animation:none; opacity:1; transform:none; }
+    .result-meta, .actions{ animation:none; opacity:1; }
+  }
+</style>
 </head>
 <body>
-    <header>
-        <p>QMPL</p>
-        <p>Descubra seu Próximo Livro</p>
-        <p>Navegue entre os Gêneros</p>
-    </header>
+
+<div class="decor" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<div class="phone">
+  <header class="top">
+    <h1 class="title">Sortear um livro</h1>
+    <div class="header-actions">
+      <button class="icon-btn" id="openFeedbackBtn" aria-label="Sugerir melhorias" title="Sugerir melhorias">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      </button>
+      <button class="icon-btn" id="openPanelBtn" aria-label="Meus livros" title="Meus livros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="genre-chip-row">
+    <button class="genre-chip" id="genreChipBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+      <span id="genreChipLabel">Todos os gêneros</span>
+    </button>
+  </div>
+
+  <div class="stage" id="stage">
+    <!-- rendered by JS -->
+  </div>
+
+  <footer class="stats" id="statsFooter"></footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Meus livros</h2>
+      <button class="panel-close" id="closePanelBtn" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="panel-stats">
+      <div class="pstat"><b id="statTotal">0</b><span>Total</span></div>
+      <div class="pstat"><b id="statUnread">0</b><span>Para ler</span></div>
+      <div class="pstat"><b id="statRead">0</b><span>Já lidos</span></div>
+    </div>
+
+    <div class="panel-search">
+      <input type="text" id="searchInput" placeholder="Buscar por título ou autor...">
+    </div>
+
+    <div class="panel-tabs">
+      <button class="tab-btn active" data-filter="all">Todos</button>
+      <button class="tab-btn" data-filter="unread">Para ler</button>
+      <button class="tab-btn" data-filter="read">Lidos</button>
+    </div>
+
+    <div class="panel-list" id="panelList"></div>
+
+    <div class="panel-footer">
+      <button class="add-toggle" id="addToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Adicionar livro
+      </button>
+      <div class="add-form" id="addForm">
+        <input type="text" id="newTitle" placeholder="Título do livro" maxlength="120">
+        <input type="text" id="newAuthor" placeholder="Autor (opcional)" maxlength="80">
+        <input type="text" id="newGenre" placeholder="Gênero (opcional)" maxlength="60">
+        <div class="add-form-row">
+          <button class="add-cancel" id="cancelAddBtn" type="button">Cancelar</button>
+          <button class="add-save" id="saveAddBtn" type="button">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="feedbackOverlay">
+  <div class="panel feedback-panel">
+    <div class="panel-header">
+      <h2>Sugerir melhorias</h2>
+      <button class="panel-close" id="closeFeedbackBtn" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="feedback-body">
+      <p class="feedback-hint">Encontrou um problema ou tem uma ideia para deixar o site melhor? Escreva abaixo — ao enviar, seu app de e-mail vai abrir com a mensagem pronta para <strong>sorteadorlivro@gmail.com</strong>.</p>
+      <input type="text" id="feedbackName" placeholder="Seu nome (opcional)" maxlength="60">
+      <textarea id="feedbackText" placeholder="Conte o que podemos melhorar..." maxlength="1000" rows="5"></textarea>
+    </div>
+    <div class="panel-footer">
+      <button class="add-toggle" id="sendFeedbackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        Enviar sugestão
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="genreOverlay">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Filtrar por gênero</h2>
+      <button class="panel-close" id="closeGenreBtn" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <p style="padding:10px 20px 0; font-size:13px; color:var(--panel-muted); line-height:1.5;">Escolha os gêneros que podem entrar no sorteio. Livros de gêneros desmarcados não serão sorteados.</p>
+    <div class="genre-actions">
+      <button class="genre-select-btn" id="selectAllGenresBtn">Selecionar todos</button>
+      <button class="genre-select-btn" id="clearGenresBtn">Nenhum</button>
+    </div>
+    <div class="panel-list" id="genreList"></div>
+    <div class="panel-footer">
+      <button class="add-toggle" id="doneGenreBtn">Concluído</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var DEFAULT_BOOKS = [{"title": "Dom Casmurro", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 1}, {"title": "Memórias Póstumas de Brás Cubas", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 2}, {"title": "Quincas Borba", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 3}, {"title": "Iaiá Garcia", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 4}, {"title": "Esaú e Jacó", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 5}, {"title": "Helena", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 6}, {"title": "A Mão e a Luva", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 7}, {"title": "O Alienista", "author": "Machado de Assis", "genre": "Literatura Brasileira", "id": 8}, {"title": "Vidas Secas", "author": "Graciliano Ramos", "genre": "Literatura Brasileira", "id": 9}, {"title": "São Bernardo", "author": "Graciliano Ramos", "genre": "Literatura Brasileira", "id": 10}, {"title": "Angústia", "author": "Graciliano Ramos", "genre": "Literatura Brasileira", "id": 11}, {"title": "Memórias do Cárcere", "author": "Graciliano Ramos", "genre": "Literatura Brasileira", "id": 12}, {"title": "Grande Sertão: Veredas", "author": "Guimarães Rosa", "genre": "Literatura Brasileira", "id": 13}, {"title": "Sagarana", "author": "Guimarães Rosa", "genre": "Literatura Brasileira", "id": 14}, {"title": "Primeiras Estórias", "author": "Guimarães Rosa", "genre": "Literatura Brasileira", "id": 15}, {"title": "Capitães da Areia", "author": "Jorge Amado", "genre": "Literatura Brasileira", "id": 16}, {"title": "Gabriela, Cravo e Canela", "author": "Jorge Amado", "genre": "Literatura Brasileira", "id": 17}, {"title": "Dona Flor e Seus Dois Maridos", "author": "Jorge Amado", "genre": "Literatura Brasileira", "id": 18}, {"title": "Tereza Batista Cansada de Guerra", "author": "Jorge Amado", "genre": "Literatura Brasileira", "id": 19}, {"title": "Tenda dos Milagres", "author": "Jorge Amado", "genre": "Literatura Brasileira", "id": 20}, {"title": "O Cortiço", "author": "Aluísio Azevedo", "genre": "Literatura Brasileira", "id": 21}, {"title": "O Mulato", "author": "Aluísio Azevedo", "genre": "Literatura Brasileira", "id": 22}, {"title": "Casa Grande & Senzala", "author": "Gilberto Freyre", "genre": "Literatura Brasileira", "id": 23}, {"title": "Os Sertões", "author": "Euclides da Cunha", "genre": "Literatura Brasileira", "id": 24}, {"title": "Triste Fim de Policarpo Quaresma", "author": "Lima Barreto", "genre": "Literatura Brasileira", "id": 25}, {"title": "Recordações do Escrivão Isaías Caminha", "author": "Lima Barreto", "genre": "Literatura Brasileira", "id": 26}, {"title": "O Guarani", "author": "José de Alencar", "genre": "Literatura Brasileira", "id": 27}, {"title": "Iracema", "author": "José de Alencar", "genre": "Literatura Brasileira", "id": 28}, {"title": "Senhora", "author": "José de Alencar", "genre": "Literatura Brasileira", "id": 29}, {"title": "A Moreninha", "author": "Joaquim Manuel de Macedo", "genre": "Literatura Brasileira", "id": 30}, {"title": "A Hora da Estrela", "author": "Clarice Lispector", "genre": "Literatura Brasileira", "id": 31}, {"title": "Perto do Coração Selvagem", "author": "Clarice Lispector", "genre": "Literatura Brasileira", "id": 32}, {"title": "A Paixão Segundo G.H.", "author": "Clarice Lispector", "genre": "Literatura Brasileira", "id": 33}, {"title": "Laços de Família", "author": "Clarice Lispector", "genre": "Literatura Brasileira", "id": 34}, {"title": "Água Viva", "author": "Clarice Lispector", "genre": "Literatura Brasileira", "id": 35}, {"title": "A Maçã no Escuro", "author": "Clarice Lispector", "genre": "Literatura Brasileira", "id": 36}, {"title": "Ensaio sobre a Cegueira", "author": "José Saramago", "genre": "Literatura Brasileira", "id": 37}, {"title": "Torto Arado", "author": "Itamar Vieira Junior", "genre": "Literatura Brasileira", "id": 38}, {"title": "O Quinze", "author": "Rachel de Queiroz", "genre": "Literatura Brasileira", "id": 39}, {"title": "Menino de Engenho", "author": "José Lins do Rego", "genre": "Literatura Brasileira", "id": 40}, {"title": "Fogo Morto", "author": "José Lins do Rego", "genre": "Literatura Brasileira", "id": 41}, {"title": "Os Ratos", "author": "Dyonélio Machado", "genre": "Literatura Brasileira", "id": 42}, {"title": "Perto do Fim", "author": "Rubem Fonseca", "genre": "Literatura Brasileira", "id": 43}, {"title": "A Grande Arte", "author": "Rubem Fonseca", "genre": "Literatura Brasileira", "id": 44}, {"title": "Feliz Ano Novo", "author": "Rubem Fonseca", "genre": "Literatura Brasileira", "id": 45}, {"title": "Relato de um Certo Oriente", "author": "Milton Hatoum", "genre": "Literatura Brasileira", "id": 46}, {"title": "Dois Irmãos", "author": "Milton Hatoum", "genre": "Literatura Brasileira", "id": 47}, {"title": "Cidade de Deus", "author": "Paulo Lins", "genre": "Literatura Brasileira", "id": 48}, {"title": "O Cortiço Rebelde", "author": "Aluísio Azevedo", "genre": "Literatura Brasileira", "id": 49}, {"title": "Não Verás País Nenhum", "author": "Ignácio de Loyola Brandão", "genre": "Literatura Brasileira", "id": 50}, {"title": "Zero", "author": "Ignácio de Loyola Brandão", "genre": "Literatura Brasileira", "id": 51}, {"title": "Bom-Crioulo", "author": "Adolfo Caminha", "genre": "Literatura Brasileira", "id": 52}, {"title": "Lavoura Arcaica", "author": "Raduan Nassar", "genre": "Literatura Brasileira", "id": 53}, {"title": "Um Copo de Cólera", "author": "Raduan Nassar", "genre": "Literatura Brasileira", "id": 54}, {"title": "O Auto da Compadecida", "author": "Ariano Suassuna", "genre": "Literatura Brasileira", "id": 55}, {"title": "Romance d'A Pedra do Reino", "author": "Ariano Suassuna", "genre": "Literatura Brasileira", "id": 56}, {"title": "A Bagaceira", "author": "José Américo de Almeida", "genre": "Literatura Brasileira", "id": 57}, {"title": "Reflexos do Baile", "author": "Antonio Callado", "genre": "Literatura Brasileira", "id": 58}, {"title": "Quarup", "author": "Antonio Callado", "genre": "Literatura Brasileira", "id": 59}, {"title": "Os Maias", "author": "Eça de Queirós", "genre": "Literatura Portuguesa", "id": 60}, {"title": "O Primo Basílio", "author": "Eça de Queirós", "genre": "Literatura Portuguesa", "id": 61}, {"title": "A Cidade e as Serras", "author": "Eça de Queirós", "genre": "Literatura Portuguesa", "id": 62}, {"title": "O Crime do Padre Amaro", "author": "Eça de Queirós", "genre": "Literatura Portuguesa", "id": 63}, {"title": "A Relíquia", "author": "Eça de Queirós", "genre": "Literatura Portuguesa", "id": 64}, {"title": "Os Lusíadas", "author": "Luís de Camões", "genre": "Literatura Portuguesa", "id": 65}, {"title": "Mensagem", "author": "Fernando Pessoa", "genre": "Literatura Portuguesa", "id": 66}, {"title": "Livro do Desassossego", "author": "Fernando Pessoa", "genre": "Literatura Portuguesa", "id": 67}, {"title": "Memorial do Convento", "author": "José Saramago", "genre": "Literatura Portuguesa", "id": 68}, {"title": "O Evangelho Segundo Jesus Cristo", "author": "José Saramago", "genre": "Literatura Portuguesa", "id": 69}, {"title": "Levantado do Chão", "author": "José Saramago", "genre": "Literatura Portuguesa", "id": 70}, {"title": "A Jangada de Pedra", "author": "José Saramago", "genre": "Literatura Portuguesa", "id": 71}, {"title": "Todos os Nomes", "author": "José Saramago", "genre": "Literatura Portuguesa", "id": 72}, {"title": "O Ano da Morte de Ricardo Reis", "author": "José Saramago", "genre": "Literatura Portuguesa", "id": 73}, {"title": "Amor de Perdição", "author": "Camilo Castelo Branco", "genre": "Literatura Portuguesa", "id": 74}, {"title": "A Sibila", "author": "Agustina Bessa-Luís", "genre": "Literatura Portuguesa", "id": 75}, {"title": "Balada da Praia dos Cães", "author": "José Cardoso Pires", "genre": "Literatura Portuguesa", "id": 76}, {"title": "Requiem", "author": "Antonio Tabucchi", "genre": "Literatura Portuguesa", "id": 77}, {"title": "A Selva", "author": "Ferreira de Castro", "genre": "Literatura Portuguesa", "id": 78}, {"title": "Dom Quixote", "author": "Miguel de Cervantes", "genre": "Clássicos Mundiais", "id": 79}, {"title": "Guerra e Paz", "author": "Liev Tolstói", "genre": "Clássicos Mundiais", "id": 80}, {"title": "Anna Karenina", "author": "Liev Tolstói", "genre": "Clássicos Mundiais", "id": 81}, {"title": "Crime e Castigo", "author": "Fiódor Dostoiévski", "genre": "Clássicos Mundiais", "id": 82}, {"title": "Os Irmãos Karamázov", "author": "Fiódor Dostoiévski", "genre": "Clássicos Mundiais", "id": 83}, {"title": "O Idiota", "author": "Fiódor Dostoiévski", "genre": "Clássicos Mundiais", "id": 84}, {"title": "Memórias do Subsolo", "author": "Fiódor Dostoiévski", "genre": "Clássicos Mundiais", "id": 85}, {"title": "Madame Bovary", "author": "Gustave Flaubert", "genre": "Clássicos Mundiais", "id": 86}, {"title": "Os Miseráveis", "author": "Victor Hugo", "genre": "Clássicos Mundiais", "id": 87}, {"title": "O Corcunda de Notre-Dame", "author": "Victor Hugo", "genre": "Clássicos Mundiais", "id": 88}, {"title": "O Conde de Monte Cristo", "author": "Alexandre Dumas", "genre": "Clássicos Mundiais", "id": 89}, {"title": "Os Três Mosqueteiros", "author": "Alexandre Dumas", "genre": "Clássicos Mundiais", "id": 90}, {"title": "Orgulho e Preconceito", "author": "Jane Austen", "genre": "Clássicos Mundiais", "id": 91}, {"title": "Razão e Sensibilidade", "author": "Jane Austen", "genre": "Clássicos Mundiais", "id": 92}, {"title": "Emma", "author": "Jane Austen", "genre": "Clássicos Mundiais", "id": 93}, {"title": "O Morro dos Ventos Uivantes", "author": "Emily Brontë", "genre": "Clássicos Mundiais", "id": 94}, {"title": "Jane Eyre", "author": "Charlotte Brontë", "genre": "Clássicos Mundiais", "id": 95}, {"title": "Grandes Esperanças", "author": "Charles Dickens", "genre": "Clássicos Mundiais", "id": 96}, {"title": "Oliver Twist", "author": "Charles Dickens", "genre": "Clássicos Mundiais", "id": 97}, {"title": "Um Conto de Duas Cidades", "author": "Charles Dickens", "genre": "Clássicos Mundiais", "id": 98}, {"title": "David Copperfield", "author": "Charles Dickens", "genre": "Clássicos Mundiais", "id": 99}, {"title": "Moby Dick", "author": "Herman Melville", "genre": "Clássicos Mundiais", "id": 100}, {"title": "A Letra Escarlate", "author": "Nathaniel Hawthorne", "genre": "Clássicos Mundiais", "id": 101}, {"title": "Ulysses", "author": "James Joyce", "genre": "Clássicos Mundiais", "id": 102}, {"title": "Retrato do Artista Quando Jovem", "author": "James Joyce", "genre": "Clássicos Mundiais", "id": 103}, {"title": "Mrs. Dalloway", "author": "Virginia Woolf", "genre": "Clássicos Mundiais", "id": 104}, {"title": "Ao Farol", "author": "Virginia Woolf", "genre": "Clássicos Mundiais", "id": 105}, {"title": "Um Teto Todo Seu", "author": "Virginia Woolf", "genre": "Clássicos Mundiais", "id": 106}, {"title": "O Retrato de Dorian Gray", "author": "Oscar Wilde", "genre": "Clássicos Mundiais", "id": 107}, {"title": "Frankenstein", "author": "Mary Shelley", "genre": "Clássicos Mundiais", "id": 108}, {"title": "Drácula", "author": "Bram Stoker", "genre": "Clássicos Mundiais", "id": 109}, {"title": "A Metamorfose", "author": "Franz Kafka", "genre": "Clássicos Mundiais", "id": 110}, {"title": "O Processo", "author": "Franz Kafka", "genre": "Clássicos Mundiais", "id": 111}, {"title": "O Castelo", "author": "Franz Kafka", "genre": "Clássicos Mundiais", "id": 112}, {"title": "A Montanha Mágica", "author": "Thomas Mann", "genre": "Clássicos Mundiais", "id": 113}, {"title": "Os Sofrimentos do Jovem Werther", "author": "Johann Wolfgang von Goethe", "genre": "Clássicos Mundiais", "id": 114}, {"title": "Fausto", "author": "Johann Wolfgang von Goethe", "genre": "Clássicos Mundiais", "id": 115}, {"title": "Cem Anos de Solidão", "author": "Gabriel García Márquez", "genre": "Clássicos Mundiais", "id": 116}, {"title": "O Amor nos Tempos do Cólera", "author": "Gabriel García Márquez", "genre": "Clássicos Mundiais", "id": 117}, {"title": "Crônica de uma Morte Anunciada", "author": "Gabriel García Márquez", "genre": "Clássicos Mundiais", "id": 118}, {"title": "Ninguém Escreve ao Coronel", "author": "Gabriel García Márquez", "genre": "Clássicos Mundiais", "id": 119}, {"title": "A Casa dos Espíritos", "author": "Isabel Allende", "genre": "Clássicos Mundiais", "id": 120}, {"title": "Pedro Páramo", "author": "Juan Rulfo", "genre": "Clássicos Mundiais", "id": 121}, {"title": "O Estrangeiro", "author": "Albert Camus", "genre": "Clássicos Mundiais", "id": 122}, {"title": "A Peste", "author": "Albert Camus", "genre": "Clássicos Mundiais", "id": 123}, {"title": "O Mito de Sísifo", "author": "Albert Camus", "genre": "Clássicos Mundiais", "id": 124}, {"title": "Náusea", "author": "Jean-Paul Sartre", "genre": "Clássicos Mundiais", "id": 125}, {"title": "À Sombra das Raparigas em Flor", "author": "Marcel Proust", "genre": "Clássicos Mundiais", "id": 126}, {"title": "No Caminho de Swann", "author": "Marcel Proust", "genre": "Clássicos Mundiais", "id": 127}, {"title": "Os Cadernos de Malte Laurids Brigge", "author": "Rainer Maria Rilke", "genre": "Clássicos Mundiais", "id": 128}, {"title": "Sidarta", "author": "Hermann Hesse", "genre": "Clássicos Mundiais", "id": 129}, {"title": "O Lobo da Estepe", "author": "Hermann Hesse", "genre": "Clássicos Mundiais", "id": 130}, {"title": "Demian", "author": "Hermann Hesse", "genre": "Clássicos Mundiais", "id": 131}, {"title": "A Divina Comédia", "author": "Dante Alighieri", "genre": "Clássicos Mundiais", "id": 132}, {"title": "Ilíada", "author": "Homero", "genre": "Clássicos Mundiais", "id": 133}, {"title": "Odisseia", "author": "Homero", "genre": "Clássicos Mundiais", "id": 134}, {"title": "Édipo Rei", "author": "Sófocles", "genre": "Clássicos Mundiais", "id": 135}, {"title": "Antígona", "author": "Sófocles", "genre": "Clássicos Mundiais", "id": 136}, {"title": "Medeia", "author": "Eurípides", "genre": "Clássicos Mundiais", "id": 137}, {"title": "As Bacantes", "author": "Eurípides", "genre": "Clássicos Mundiais", "id": 138}, {"title": "1984", "author": "George Orwell", "genre": "Ficção Científica e Fantasia", "id": 139}, {"title": "A Revolução dos Bichos", "author": "George Orwell", "genre": "Ficção Científica e Fantasia", "id": 140}, {"title": "Admirável Mundo Novo", "author": "Aldous Huxley", "genre": "Ficção Científica e Fantasia", "id": 141}, {"title": "Fahrenheit 451", "author": "Ray Bradbury", "genre": "Ficção Científica e Fantasia", "id": 142}, {"title": "Crônicas Marcianas", "author": "Ray Bradbury", "genre": "Ficção Científica e Fantasia", "id": 143}, {"title": "Duna", "author": "Frank Herbert", "genre": "Ficção Científica e Fantasia", "id": 144}, {"title": "Fundação", "author": "Isaac Asimov", "genre": "Ficção Científica e Fantasia", "id": 145}, {"title": "Eu, Robô", "author": "Isaac Asimov", "genre": "Ficção Científica e Fantasia", "id": 146}, {"title": "O Fim da Eternidade", "author": "Isaac Asimov", "genre": "Ficção Científica e Fantasia", "id": 147}, {"title": "Neuromancer", "author": "William Gibson", "genre": "Ficção Científica e Fantasia", "id": 148}, {"title": "O Conto da Aia", "author": "Margaret Atwood", "genre": "Ficção Científica e Fantasia", "id": 149}, {"title": "A Guerra dos Mundos", "author": "H. G. Wells", "genre": "Ficção Científica e Fantasia", "id": 150}, {"title": "A Máquina do Tempo", "author": "H. G. Wells", "genre": "Ficção Científica e Fantasia", "id": 151}, {"title": "O Homem Invisível", "author": "H. G. Wells", "genre": "Ficção Científica e Fantasia", "id": 152}, {"title": "Vinte Mil Léguas Submarinas", "author": "Júlio Verne", "genre": "Ficção Científica e Fantasia", "id": 153}, {"title": "A Volta ao Mundo em 80 Dias", "author": "Júlio Verne", "genre": "Ficção Científica e Fantasia", "id": 154}, {"title": "Viagem ao Centro da Terra", "author": "Júlio Verne", "genre": "Ficção Científica e Fantasia", "id": 155}, {"title": "O Senhor dos Anéis: A Sociedade do Anel", "author": "J.R.R. Tolkien", "genre": "Ficção Científica e Fantasia", "id": 156}, {"title": "O Senhor dos Anéis: As Duas Torres", "author": "J.R.R. Tolkien", "genre": "Ficção Científica e Fantasia", "id": 157}, {"title": "O Senhor dos Anéis: O Retorno do Rei", "author": "J.R.R. Tolkien", "genre": "Ficção Científica e Fantasia", "id": 158}, {"title": "O Hobbit", "author": "J.R.R. Tolkien", "genre": "Ficção Científica e Fantasia", "id": 159}, {"title": "O Silmarillion", "author": "J.R.R. Tolkien", "genre": "Ficção Científica e Fantasia", "id": 160}, {"title": "As Crônicas de Nárnia: O Leão, a Feiticeira e o Guarda-Roupa", "author": "C.S. Lewis", "genre": "Ficção Científica e Fantasia", "id": 161}, {"title": "A Guerra dos Tronos", "author": "George R. R. Martin", "genre": "Ficção Científica e Fantasia", "id": 162}, {"title": "A Fúria dos Reis", "author": "George R. R. Martin", "genre": "Ficção Científica e Fantasia", "id": 163}, {"title": "A Tormenta de Espadas", "author": "George R. R. Martin", "genre": "Ficção Científica e Fantasia", "id": 164}, {"title": "O Nome do Vento", "author": "Patrick Rothfuss", "genre": "Ficção Científica e Fantasia", "id": 165}, {"title": "O Medo do Sábio", "author": "Patrick Rothfuss", "genre": "Ficção Científica e Fantasia", "id": 166}, {"title": "Mistborn: O Império Final", "author": "Brandon Sanderson", "genre": "Ficção Científica e Fantasia", "id": 167}, {"title": "O Caminho dos Reis", "author": "Brandon Sanderson", "genre": "Ficção Científica e Fantasia", "id": 168}, {"title": "Neverwhere", "author": "Neil Gaiman", "genre": "Ficção Científica e Fantasia", "id": 169}, {"title": "Deuses Americanos", "author": "Neil Gaiman", "genre": "Ficção Científica e Fantasia", "id": 170}, {"title": "Coraline", "author": "Neil Gaiman", "genre": "Ficção Científica e Fantasia", "id": 171}, {"title": "Bom Presságios", "author": "Neil Gaiman e Terry Pratchett", "genre": "Ficção Científica e Fantasia", "id": 172}, {"title": "A Guarda Noturna", "author": "Terry Pratchett", "genre": "Ficção Científica e Fantasia", "id": 173}, {"title": "O Problema dos Três Corpos", "author": "Liu Cixin", "genre": "Ficção Científica e Fantasia", "id": 174}, {"title": "Eu Sou a Lenda", "author": "Richard Matheson", "genre": "Ficção Científica e Fantasia", "id": 175}, {"title": "O Andróide Sonha com Ovelhas Elétricas?", "author": "Philip K. Dick", "genre": "Ficção Científica e Fantasia", "id": 176}, {"title": "O Homem do Castelo Alto", "author": "Philip K. Dick", "genre": "Ficção Científica e Fantasia", "id": 177}, {"title": "Ubik", "author": "Philip K. Dick", "genre": "Ficção Científica e Fantasia", "id": 178}, {"title": "Solaris", "author": "Stanislaw Lem", "genre": "Ficção Científica e Fantasia", "id": 179}, {"title": "O Guia do Mochileiro das Galáxias", "author": "Douglas Adams", "genre": "Ficção Científica e Fantasia", "id": 180}, {"title": "Jogador Número 1", "author": "Ernest Cline", "genre": "Ficção Científica e Fantasia", "id": 181}, {"title": "Círculo", "author": "Dave Eggers", "genre": "Ficção Científica e Fantasia", "id": 182}, {"title": "Perdido em Marte", "author": "Andy Weir", "genre": "Ficção Científica e Fantasia", "id": 183}, {"title": "O Silêncio dos Inocentes", "author": "Thomas Harris", "genre": "Suspense e Mistério", "id": 184}, {"title": "Dragão Vermelho", "author": "Thomas Harris", "genre": "Suspense e Mistério", "id": 185}, {"title": "Hannibal", "author": "Thomas Harris", "genre": "Suspense e Mistério", "id": 186}, {"title": "A Garota no Trem", "author": "Paula Hawkins", "genre": "Suspense e Mistério", "id": 187}, {"title": "Garota Exemplar", "author": "Gillian Flynn", "genre": "Suspense e Mistério", "id": 188}, {"title": "Objetos Cortantes", "author": "Gillian Flynn", "genre": "Suspense e Mistério", "id": 189}, {"title": "O Iluminado", "author": "Stephen King", "genre": "Suspense e Mistério", "id": 190}, {"title": "It: A Coisa", "author": "Stephen King", "genre": "Suspense e Mistério", "id": 191}, {"title": "Carrie, a Estranha", "author": "Stephen King", "genre": "Suspense e Mistério", "id": 192}, {"title": "Cemitério Maldito", "author": "Stephen King", "genre": "Suspense e Mistério", "id": 193}, {"title": "Misery", "author": "Stephen King", "genre": "Suspense e Mistério", "id": 194}, {"title": "A Torre Negra: O Pistoleiro", "author": "Stephen King", "genre": "Suspense e Mistério", "id": 195}, {"title": "Assassinato no Expresso do Oriente", "author": "Agatha Christie", "genre": "Suspense e Mistério", "id": 196}, {"title": "E Não Sobrou Nenhum", "author": "Agatha Christie", "genre": "Suspense e Mistério", "id": 197}, {"title": "O Assassinato de Roger Ackroyd", "author": "Agatha Christie", "genre": "Suspense e Mistério", "id": 198}, {"title": "Morte no Nilo", "author": "Agatha Christie", "genre": "Suspense e Mistério", "id": 199}, {"title": "Os Homens Que Não Amavam as Mulheres", "author": "Stieg Larsson", "genre": "Suspense e Mistério", "id": 200}, {"title": "A Garota que Sonhava com uma Lata de Gasolina e um Fósforo", "author": "Stieg Larsson", "genre": "Suspense e Mistério", "id": 201}, {"title": "A Garota que Explodiu o Castelo de Ar", "author": "Stieg Larsson", "genre": "Suspense e Mistério", "id": 202}, {"title": "O Sabor do Pecado", "author": "Camilla Läckberg", "genre": "Suspense e Mistério", "id": 203}, {"title": "A Verdade Sobre o Caso Harry Quebert", "author": "Joël Dicker", "genre": "Suspense e Mistério", "id": 204}, {"title": "O Nome da Rosa", "author": "Umberto Eco", "genre": "Suspense e Mistério", "id": 205}, {"title": "O Cemitério de Praga", "author": "Umberto Eco", "genre": "Suspense e Mistério", "id": 206}, {"title": "Sherlock Holmes: Um Estudo em Vermelho", "author": "Arthur Conan Doyle", "genre": "Suspense e Mistério", "id": 207}, {"title": "O Cão dos Baskervilles", "author": "Arthur Conan Doyle", "genre": "Suspense e Mistério", "id": 208}, {"title": "Os Homens Explicam Tudo Para Mim", "author": "Rebecca Solnit", "genre": "Suspense e Mistério", "id": 209}, {"title": "Gone Girl", "author": "Gillian Flynn", "genre": "Suspense e Mistério", "id": 210}, {"title": "O Espião que Sabia Demais", "author": "John le Carré", "genre": "Suspense e Mistério", "id": 211}, {"title": "O Talentoso Ripley", "author": "Patricia Highsmith", "genre": "Suspense e Mistério", "id": 212}, {"title": "Desconhecidos num Trem", "author": "Patricia Highsmith", "genre": "Suspense e Mistério", "id": 213}, {"title": "A Sombra do Vento", "author": "Carlos Ruiz Zafón", "genre": "Suspense e Mistério", "id": 214}, {"title": "O Apanhador no Campo de Centeio", "author": "J.D. Salinger", "genre": "Romance", "id": 215}, {"title": "O Grande Gatsby", "author": "F. Scott Fitzgerald", "genre": "Romance", "id": 216}, {"title": "Suave é a Noite", "author": "F. Scott Fitzgerald", "genre": "Romance", "id": 217}, {"title": "A Última Música", "author": "Nicholas Sparks", "genre": "Romance", "id": 218}, {"title": "Um Lugar Chamado Notting Hill", "author": "Nicholas Sparks", "genre": "Romance", "id": 219}, {"title": "Como Eu Era Antes de Você", "author": "Jojo Moyes", "genre": "Romance", "id": 220}, {"title": "Depois de Você", "author": "Jojo Moyes", "genre": "Romance", "id": 221}, {"title": "A Culpa é das Estrelas", "author": "John Green", "genre": "Romance", "id": 222}, {"title": "Cidades de Papel", "author": "John Green", "genre": "Romance", "id": 223}, {"title": "Quem é Você, Alasca?", "author": "John Green", "genre": "Romance", "id": 224}, {"title": "Orgulho e Preconceito e Zumbis", "author": "Seth Grahame-Smith", "genre": "Romance", "id": 225}, {"title": "Outlander: A Viajante do Tempo", "author": "Diana Gabaldon", "genre": "Romance", "id": 226}, {"title": "Cinquenta Tons de Cinza", "author": "E.L. James", "genre": "Romance", "id": 227}, {"title": "O Diário de Bridget Jones", "author": "Helen Fielding", "genre": "Romance", "id": 228}, {"title": "Como Água Para Chocolate", "author": "Laura Esquivel", "genre": "Romance", "id": 229}, {"title": "O Diário de Anne Frank", "author": "Anne Frank", "genre": "Romance", "id": 230}, {"title": "Eat, Pray, Love: Comer, Rezar, Amar", "author": "Elizabeth Gilbert", "genre": "Romance", "id": 231}, {"title": "A Cabana", "author": "William P. Young", "genre": "Romance", "id": 232}, {"title": "O Amor Não é Óbvio", "author": "Ali Hazelwood", "genre": "Romance", "id": 233}, {"title": "Verity", "author": "Colleen Hoover", "genre": "Romance", "id": 234}, {"title": "É Assim que Acaba", "author": "Colleen Hoover", "genre": "Romance", "id": 235}, {"title": "Ugly Love", "author": "Colleen Hoover", "genre": "Romance", "id": 236}, {"title": "November 9", "author": "Colleen Hoover", "genre": "Romance", "id": 237}, {"title": "Reminders of Him", "author": "Colleen Hoover", "genre": "Romance", "id": 238}, {"title": "Onde Vivem os Monstros", "author": "Maurice Sendak", "genre": "Romance", "id": 239}, {"title": "O Amor em Tempos de Cólera", "author": "Gabriel García Márquez", "genre": "Romance", "id": 240}, {"title": "Se Eu Ficar", "author": "Gayle Forman", "genre": "Romance", "id": 241}, {"title": "Antes de Você", "author": "Jojo Moyes", "genre": "Romance", "id": 242}, {"title": "A Menina que Roubava Livros", "author": "Markus Zusak", "genre": "Romance", "id": 243}, {"title": "Extremamente Alto e Incrivelmente Perto", "author": "Jonathan Safran Foer", "genre": "Romance", "id": 244}, {"title": "Pride", "author": "Ibi Zoboi", "genre": "Romance", "id": 245}, {"title": "Sapiens: Uma Breve História da Humanidade", "author": "Yuval Noah Harari", "genre": "Não-ficção e Filosofia", "id": 246}, {"title": "Homo Deus", "author": "Yuval Noah Harari", "genre": "Não-ficção e Filosofia", "id": 247}, {"title": "21 Lições para o Século 21", "author": "Yuval Noah Harari", "genre": "Não-ficção e Filosofia", "id": 248}, {"title": "O Poder do Hábito", "author": "Charles Duhigg", "genre": "Não-ficção e Filosofia", "id": 249}, {"title": "Rápido e Devagar", "author": "Daniel Kahneman", "genre": "Não-ficção e Filosofia", "id": 250}, {"title": "Mindset: A Nova Psicologia do Sucesso", "author": "Carol S. Dweck", "genre": "Não-ficção e Filosofia", "id": 251}, {"title": "O Homem em Busca de Sentido", "author": "Viktor Frankl", "genre": "Não-ficção e Filosofia", "id": 252}, {"title": "Meditações", "author": "Marco Aurélio", "genre": "Não-ficção e Filosofia", "id": 253}, {"title": "A República", "author": "Platão", "genre": "Não-ficção e Filosofia", "id": 254}, {"title": "Ética a Nicômaco", "author": "Aristóteles", "genre": "Não-ficção e Filosofia", "id": 255}, {"title": "Assim Falou Zaratustra", "author": "Friedrich Nietzsche", "genre": "Não-ficção e Filosofia", "id": 256}, {"title": "Além do Bem e do Mal", "author": "Friedrich Nietzsche", "genre": "Não-ficção e Filosofia", "id": 257}, {"title": "O Anticristo", "author": "Friedrich Nietzsche", "genre": "Não-ficção e Filosofia", "id": 258}, {"title": "O Príncipe", "author": "Nicolau Maquiavel", "genre": "Não-ficção e Filosofia", "id": 259}, {"title": "O Capital", "author": "Karl Marx", "genre": "Não-ficção e Filosofia", "id": 260}, {"title": "O Manifesto Comunista", "author": "Karl Marx e Friedrich Engels", "genre": "Não-ficção e Filosofia", "id": 261}, {"title": "A Origem das Espécies", "author": "Charles Darwin", "genre": "Não-ficção e Filosofia", "id": 262}, {"title": "Uma Breve História do Tempo", "author": "Stephen Hawking", "genre": "Não-ficção e Filosofia", "id": 263}, {"title": "Cosmos", "author": "Carl Sagan", "genre": "Não-ficção e Filosofia", "id": 264}, {"title": "Armas, Germes e Aço", "author": "Jared Diamond", "genre": "Não-ficção e Filosofia", "id": 265}, {"title": "A Riqueza das Nações", "author": "Adam Smith", "genre": "Não-ficção e Filosofia", "id": 266}, {"title": "Vigiar e Punir", "author": "Michel Foucault", "genre": "Não-ficção e Filosofia", "id": 267}, {"title": "As Palavras e as Coisas", "author": "Michel Foucault", "genre": "Não-ficção e Filosofia", "id": 268}, {"title": "O Segundo Sexo", "author": "Simone de Beauvoir", "genre": "Não-ficção e Filosofia", "id": 269}, {"title": "Mulheres que Correm com os Lobos", "author": "Clarissa Pinkola Estés", "genre": "Não-ficção e Filosofia", "id": 270}, {"title": "A Arte da Guerra", "author": "Sun Tzu", "genre": "Não-ficção e Filosofia", "id": 271}, {"title": "Como Fazer Amigos e Influenciar Pessoas", "author": "Dale Carnegie", "genre": "Não-ficção e Filosofia", "id": 272}, {"title": "Pai Rico, Pai Pobre", "author": "Robert Kiyosaki", "genre": "Não-ficção e Filosofia", "id": 273}, {"title": "Essencialismo", "author": "Greg McKeown", "genre": "Não-ficção e Filosofia", "id": 274}, {"title": "O Poder do Agora", "author": "Eckhart Tolle", "genre": "Não-ficção e Filosofia", "id": 275}, {"title": "Harry Potter e a Pedra Filosofal", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 276}, {"title": "Harry Potter e a Câmara Secreta", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 277}, {"title": "Harry Potter e o Prisioneiro de Azkaban", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 278}, {"title": "Harry Potter e o Cálice de Fogo", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 279}, {"title": "Harry Potter e a Ordem da Fênix", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 280}, {"title": "Harry Potter e o Enigma do Príncipe", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 281}, {"title": "Harry Potter e as Relíquias da Morte", "author": "J.K. Rowling", "genre": "Infantojuvenil", "id": 282}, {"title": "Percy Jackson e o Ladrão de Raios", "author": "Rick Riordan", "genre": "Infantojuvenil", "id": 283}, {"title": "Jogos Vorazes", "author": "Suzanne Collins", "genre": "Infantojuvenil", "id": 284}, {"title": "Em Chamas", "author": "Suzanne Collins", "genre": "Infantojuvenil", "id": 285}, {"title": "A Esperança", "author": "Suzanne Collins", "genre": "Infantojuvenil", "id": 286}, {"title": "Divergente", "author": "Veronica Roth", "genre": "Infantojuvenil", "id": 287}, {"title": "Sítio do Picapau Amarelo: Reinações de Narizinho", "author": "Monteiro Lobato", "genre": "Infantojuvenil", "id": 288}, {"title": "O Pequeno Príncipe", "author": "Antoine de Saint-Exupéry", "genre": "Infantojuvenil", "id": 289}, {"title": "As Aventuras de Pinóquio", "author": "Carlo Collodi", "genre": "Infantojuvenil", "id": 290}, {"title": "Alice no País das Maravilhas", "author": "Lewis Carroll", "genre": "Infantojuvenil", "id": 291}, {"title": "Peter Pan", "author": "J.M. Barrie", "genre": "Infantojuvenil", "id": 292}, {"title": "Charlie e a Fábrica de Chocolate", "author": "Roald Dahl", "genre": "Infantojuvenil", "id": 293}, {"title": "Matilda", "author": "Roald Dahl", "genre": "Infantojuvenil", "id": 294}, {"title": "James e o Pé de Gigante", "author": "Roald Dahl", "genre": "Infantojuvenil", "id": 295}, {"title": "Antologia Poética", "author": "Carlos Drummond de Andrade", "genre": "Poesia", "id": 296}, {"title": "A Rosa do Povo", "author": "Carlos Drummond de Andrade", "genre": "Poesia", "id": 297}, {"title": "Claro Enigma", "author": "Carlos Drummond de Andrade", "genre": "Poesia", "id": 298}, {"title": "Poemas", "author": "Cecília Meireles", "genre": "Poesia", "id": 299}, {"title": "Romanceiro da Inconfidência", "author": "Cecília Meireles", "genre": "Poesia", "id": 300}, {"title": "Folhas de Relva", "author": "Walt Whitman", "genre": "Poesia", "id": 301}, {"title": "As Flores do Mal", "author": "Charles Baudelaire", "genre": "Poesia", "id": 302}, {"title": "Vinte Poemas de Amor e uma Canção Desesperada", "author": "Pablo Neruda", "genre": "Poesia", "id": 303}, {"title": "Cem Sonetos de Amor", "author": "Pablo Neruda", "genre": "Poesia", "id": 304}, {"title": "Poemas Completos", "author": "Cora Coralina", "genre": "Poesia", "id": 305}, {"title": "Segunda Antologia Poética", "author": "Manuel Bandeira", "genre": "Poesia", "id": 306}, {"title": "Libertinagem", "author": "Manuel Bandeira", "genre": "Poesia", "id": 307}, {"title": "Sentimento do Mundo", "author": "Carlos Drummond de Andrade", "genre": "Poesia", "id": 308}, {"title": "Poesia Completa", "author": "Fernando Pessoa", "genre": "Poesia", "id": 309}, {"title": "Ariel", "author": "Sylvia Plath", "genre": "Poesia", "id": 310}, {"title": "O Curioso Incidente do Cão Morto Durante a Noite", "author": "Mark Haddon", "genre": "Contemporâneos", "id": 311}, {"title": "Educated: A Educação", "author": "Tara Westover", "genre": "Contemporâneos", "id": 312}, {"title": "Onde os Fracos Não Têm Vez", "author": "Cormac McCarthy", "genre": "Contemporâneos", "id": 313}, {"title": "A Estrada", "author": "Cormac McCarthy", "genre": "Contemporâneos", "id": 314}, {"title": "Meridiano de Sangue", "author": "Cormac McCarthy", "genre": "Contemporâneos", "id": 315}, {"title": "As Vantagens de Ser Invisível", "author": "Stephen Chbosky", "genre": "Contemporâneos", "id": 316}, {"title": "Norwegian Wood", "author": "Haruki Murakami", "genre": "Contemporâneos", "id": 317}, {"title": "Kafka à Beira-Mar", "author": "Haruki Murakami", "genre": "Contemporâneos", "id": 318}, {"title": "1Q84", "author": "Haruki Murakami", "genre": "Contemporâneos", "id": 319}, {"title": "Minha Querida Loucura", "author": "Ferréz", "genre": "Contemporâneos", "id": 320}, {"title": "Becos da Memória", "author": "Conceição Evaristo", "genre": "Contemporâneos", "id": 321}, {"title": "Olhos D'Água", "author": "Conceição Evaristo", "genre": "Contemporâneos", "id": 322}, {"title": "O Avesso da Pele", "author": "Jeferson Tenório", "genre": "Contemporâneos", "id": 323}, {"title": "Marrom e Amarelo", "author": "Paulo Scott", "genre": "Contemporâneos", "id": 324}, {"title": "K. Relato de uma Busca", "author": "Bernardo Kucinski", "genre": "Contemporâneos", "id": 325}, {"title": "Budapeste", "author": "Chico Buarque", "genre": "Contemporâneos", "id": 326}, {"title": "Leite Derramado", "author": "Chico Buarque", "genre": "Contemporâneos", "id": 327}, {"title": "Estorvo", "author": "Chico Buarque", "genre": "Contemporâneos", "id": 328}, {"title": "O Xangô de Baker Street", "author": "Jô Soares", "genre": "Contemporâneos", "id": 329}, {"title": "Assassinatos na Academia Brasileira de Letras", "author": "Jô Soares", "genre": "Contemporâneos", "id": 330}, {"title": "O Alquimista", "author": "Paulo Coelho", "genre": "Contemporâneos", "id": 331}, {"title": "Brida", "author": "Paulo Coelho", "genre": "Contemporâneos", "id": 332}, {"title": "Onze Minutos", "author": "Paulo Coelho", "genre": "Contemporâneos", "id": 333}, {"title": "Veronika Decide Morrer", "author": "Paulo Coelho", "genre": "Contemporâneos", "id": 334}, {"title": "O Diário de um Mago", "author": "Paulo Coelho", "genre": "Contemporâneos", "id": 335}, {"title": "A Sutil Arte de Ligar o F*da-se", "author": "Mark Manson", "genre": "Contemporâneos", "id": 336}, {"title": "Tudo é Rio", "author": "Carla Madeira", "genre": "Contemporâneos", "id": 337}, {"title": "Suíte Tóquio", "author": "Giulia Moon", "genre": "Contemporâneos", "id": 338}];
+
+  var STORAGE_KEYS = {
+    readIds: 'sortear-livro:read-ids',
+    customBooks: 'sortear-livro:custom-books',
+    nextCustomId: 'sortear-livro:next-custom-id',
+    excludedGenres: 'sortear-livro:excluded-genres'
+  };
+
+  var state = {
+    books: [],
+    readIds: new Set(),
+    excludedGenres: new Set(),
+    lastResult: null,
+    filter: 'all',
+    search: '',
+    storageReady: false
+  };
+
+  var bookIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H12v18H4.5A2.5 2.5 0 0 0 2 22.5v-18Z"></path><path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H12v18h7.5a2.5 2.5 0 0 1 2.5 2.5v-18Z"></path></svg>';
+  var checkIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  var trashIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+  var linkIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>';
+
+  function el(html){
+    var t = document.createElement('template');
+    t.innerHTML = html.trim();
+    return t.content.firstChild;
+  }
+
+  // ---------- Storage helpers ----------
+  function hasStorage(){
+    return typeof window.storage !== 'undefined' && window.storage;
+  }
+
+  function loadState(){
+    var localReadIds = [];
+    var localCustom = [];
+    var localExcluded = [];
+    try{
+      var rawRead = localStorage.getItem('_fallback_read_ids');
+      if(rawRead) localReadIds = JSON.parse(rawRead);
+      var rawCustom = localStorage.getItem('_fallback_custom_books');
+      if(rawCustom) localCustom = JSON.parse(rawCustom);
+      var rawExcluded = localStorage.getItem('_fallback_excluded_genres');
+      if(rawExcluded) localExcluded = JSON.parse(rawExcluded);
+    }catch(e){}
+
+    if(!hasStorage()){
+      applyLoaded(localReadIds, localCustom, localExcluded);
+      return;
+    }
+
+    Promise.all([
+      window.storage.get(STORAGE_KEYS.readIds, false).catch(function(){ return null; }),
+      window.storage.get(STORAGE_KEYS.customBooks, false).catch(function(){ return null; }),
+      window.storage.get(STORAGE_KEYS.excludedGenres, false).catch(function(){ return null; })
+    ]).then(function(results){
+      var readIds = [];
+      var customBooks = [];
+      var excludedGenres = [];
+      try{
+        if(results[0] && results[0].value) readIds = JSON.parse(results[0].value);
+      }catch(e){}
+      try{
+        if(results[1] && results[1].value) customBooks = JSON.parse(results[1].value);
+      }catch(e){}
+      try{
+        if(results[2] && results[2].value) excludedGenres = JSON.parse(results[2].value);
+      }catch(e){}
+      state.storageReady = true;
+      applyLoaded(readIds, customBooks, excludedGenres);
+    }).catch(function(){
+      applyLoaded(localReadIds, localCustom, localExcluded);
+    });
+  }
+
+  function applyLoaded(readIds, customBooks, excludedGenres){
+    state.books = DEFAULT_BOOKS.concat(customBooks || []);
+    state.readIds = new Set(readIds || []);
+    state.excludedGenres = new Set(excludedGenres || []);
+    renderStage();
+    renderFooterStats();
+    renderPanelList();
+    renderPanelStats();
+    renderGenreChip();
+  }
+
+  function persistReadIds(){
+    var arr = Array.from(state.readIds);
+    try{ localStorage.setItem('_fallback_read_ids', JSON.stringify(arr)); }catch(e){}
+    if(hasStorage()){
+      window.storage.set(STORAGE_KEYS.readIds, JSON.stringify(arr), false).catch(function(){});
+    }
+  }
+
+  function persistCustomBooks(){
+    var custom = state.books.filter(function(b){ return b.custom; });
+    try{ localStorage.setItem('_fallback_custom_books', JSON.stringify(custom)); }catch(e){}
+    if(hasStorage()){
+      window.storage.set(STORAGE_KEYS.customBooks, JSON.stringify(custom), false).catch(function(){});
+    }
+  }
+
+  function persistExcludedGenres(){
+    var arr = Array.from(state.excludedGenres);
+    try{ localStorage.setItem('_fallback_excluded_genres', JSON.stringify(arr)); }catch(e){}
+    if(hasStorage()){
+      window.storage.set(STORAGE_KEYS.excludedGenres, JSON.stringify(arr), false).catch(function(){});
+    }
+  }
+
+  // ---------- Derived data ----------
+  function bookGenre(b){ return b.genre || 'Sem gênero'; }
+
+  function allGenres(){
+    var set = new Set();
+    state.books.forEach(function(b){ set.add(bookGenre(b)); });
+    return Array.from(set).sort(function(a,b){ return a.localeCompare(b, 'pt-BR'); });
+  }
+
+  function isGenreIncluded(genre){
+    return !state.excludedGenres.has(genre);
+  }
+
+  function unreadBooksAllGenres(){
+    return state.books.filter(function(b){ return !state.readIds.has(b.id); });
+  }
+
+  function unreadBooks(){
+    return state.books.filter(function(b){
+      return !state.readIds.has(b.id) && isGenreIncluded(bookGenre(b));
+    });
+  }
+
+  function isRead(id){ return state.readIds.has(id); }
+
+  // ---------- Stage rendering ----------
+  var stage = document.getElementById('stage');
+  var statsFooter = document.getElementById('statsFooter');
+
+  function renderIdleStage(){
+    stage.innerHTML = '';
+    var wrap = el('<div class="dial-wrap"></div>');
+    var dial = el('<button class="dial" id="dialBtn" aria-label="Sortear um livro"></button>');
+    dial.innerHTML = bookIconSvg;
+    var label = el('<div class="dial-label">Clique para sortear</div>');
+    var count = el('<div class="pool-count"></div>');
+    count.textContent = unreadBooks().length + (unreadBooks().length === 1 ? ' livro no sorteio' : ' livros no sorteio');
+    wrap.appendChild(dial);
+    wrap.appendChild(label);
+    wrap.appendChild(count);
+    stage.appendChild(wrap);
+    dial.addEventListener('click', handleSortear);
+  }
+
+  function renderEmptyStage(){
+    stage.innerHTML = '';
+    var hasUnreadElsewhere = unreadBooksAllGenres().length > 0 && state.excludedGenres.size > 0;
+    var wrap;
+    if(hasUnreadElsewhere){
+      wrap = el(
+        '<div class="empty-state">' +
+          '<div class="emoji">🎚️</div>' +
+          '<h3>Nada nesses gêneros</h3>' +
+          '<p>Não há livros não lidos nos gêneros selecionados. Ajuste o filtro para ver mais opções.</p>' +
+        '</div>'
+      );
+      stage.appendChild(wrap);
+      var btnWrap2 = el('<div class="actions" style="margin-top:20px;"></div>');
+      var filterBtn = el('<button class="btn-pill btn-dark">Ajustar filtro de gêneros</button>');
+      filterBtn.addEventListener('click', openGenrePanel);
+      var allBtn = el('<button class="btn-pill btn-ghost">Ver todos os gêneros</button>');
+      allBtn.addEventListener('click', function(){
+        state.excludedGenres.clear();
+        persistExcludedGenres();
+        renderGenreChip();
+        renderIdleOrEmpty();
+      });
+      btnWrap2.appendChild(filterBtn);
+      btnWrap2.appendChild(allBtn);
+      stage.appendChild(btnWrap2);
+      return;
+    }
+    wrap = el(
+      '<div class="empty-state">' +
+        '<div class="emoji">🎉</div>' +
+        '<h3>Você já leu tudo!</h3>' +
+        '<p>Todos os livros da lista estão marcados como lidos. Adicione novos títulos para continuar sorteando.</p>' +
+      '</div>'
+    );
+    stage.appendChild(wrap);
+    var btnWrap = el('<div class="actions" style="margin-top:20px;"></div>');
+    var addBtn = el('<button class="btn-pill btn-dark">Adicionar livros</button>');
+    addBtn.addEventListener('click', openPanel);
+    btnWrap.appendChild(addBtn);
+    stage.appendChild(btnWrap);
+  }
+
+  function renderSpinningStage(){
+    stage.innerHTML = '';
+    var wrap = el('<div class="dial-wrap"></div>');
+    var dial = el('<button class="dial spinning" id="dialBtn" disabled></button>');
+    dial.innerHTML = bookIconSvg;
+    var label = el('<div class="dial-label">Sorteando...</div>');
+    wrap.appendChild(dial);
+    wrap.appendChild(label);
+    stage.appendChild(wrap);
+  }
+
+  function googleBooksUrl(book){
+    var q = encodeURIComponent(book.title + ' ' + (book.author || ''));
+    return 'https://www.google.com/search?tbm=bks&q=' + q;
+  }
+
+  function renderResultStage(book){
+    stage.innerHTML = '';
+
+    var card = el('<div class="result-card"></div>');
+    var badge = el('<div class="result-badge"></div>');
+    badge.innerHTML = bookIconSvg + '<span>LIVRO</span>';
+    var info = el('<div class="result-info"></div>');
+    var h2 = document.createElement('h2');
+    h2.textContent = book.title;
+    var author = el('<div class="author"></div>');
+    author.textContent = book.author || 'Autor desconhecido';
+    var sub = el('<div class="sub">Seu próximo livro</div>');
+    info.appendChild(h2);
+    info.appendChild(author);
+    info.appendChild(sub);
+    if(book.genre){
+      var genreTag = el('<div class="result-genre"></div>');
+      genreTag.textContent = book.genre;
+      info.appendChild(genreTag);
+    }
+
+    var link = el('<a class="result-link" target="_blank" rel="noopener noreferrer"></a>');
+    link.href = googleBooksUrl(book);
+    link.innerHTML = linkIconSvg;
+    link.setAttribute('aria-label', 'Buscar ' + book.title);
+
+    card.appendChild(badge);
+    card.appendChild(info);
+    card.appendChild(link);
+    stage.appendChild(card);
+
+    var meta = el('<div class="result-meta">📖 Livro sorteado!</div>');
+    stage.appendChild(meta);
+
+    var actions = el('<div class="actions"></div>');
+    var againBtn = el('<button class="btn-pill btn-dark">Sortear novamente</button>');
+    againBtn.addEventListener('click', handleSortear);
+    var readBtn = el('<button class="btn-pill btn-ghost">Marcar como lido</button>');
+    readBtn.addEventListener('click', function(){
+      markAsRead(book.id);
+      showToast('"' + book.title + '" marcado como lido');
+      renderIdleOrEmpty();
+      renderFooterStats();
+      renderPanelStats();
+      renderPanelList();
+    });
+    actions.appendChild(againBtn);
+    actions.appendChild(readBtn);
+    stage.appendChild(actions);
+  }
+
+  function renderIdleOrEmpty(){
+    if(unreadBooks().length === 0){
+      renderEmptyStage();
+    }else{
+      renderIdleStage();
+    }
+  }
+
+  function renderStage(){
+    renderIdleOrEmpty();
+  }
+
+  function renderFooterStats(){
+    var total = state.books.length;
+    var read = state.readIds.size;
+    var left = total - read;
+    statsFooter.innerHTML =
+      '<div class="stat"><b>' + left + '</b><span>Para ler</span></div>' +
+      '<div class="stat"><b>' + read + '</b><span>Lidos</span></div>' +
+      '<div class="stat"><b>' + total + '</b><span>Total</span></div>';
+  }
+
+  function markAsRead(id){
+    state.readIds.add(id);
+    persistReadIds();
+  }
+
+  function handleSortear(){
+    var pool = unreadBooks();
+    if(pool.length === 0){
+      renderEmptyStage();
+      return;
+    }
+    renderSpinningStage();
+    var delay = 1100 + Math.random() * 500;
+    setTimeout(function(){
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+      state.lastResult = pick;
+      renderResultStage(pick);
+    }, delay);
+  }
+
+  // ---------- Panel ----------
+  var overlay = document.getElementById('overlay');
+  var openPanelBtn = document.getElementById('openPanelBtn');
+  var closePanelBtn = document.getElementById('closePanelBtn');
+  var panelList = document.getElementById('panelList');
+  var searchInput = document.getElementById('searchInput');
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var addToggleBtn = document.getElementById('addToggleBtn');
+  var addForm = document.getElementById('addForm');
+  var cancelAddBtn = document.getElementById('cancelAddBtn');
+  var saveAddBtn = document.getElementById('saveAddBtn');
+  var newTitleInput = document.getElementById('newTitle');
+  var newAuthorInput = document.getElementById('newAuthor');
+  var newGenreInput = document.getElementById('newGenre');
+
+  function openPanel(){
+    overlay.classList.add('open');
+    renderPanelStats();
+    renderPanelList();
+  }
+  function closePanel(){
+    overlay.classList.remove('open');
+    addForm.classList.remove('open');
+  }
+  openPanelBtn.addEventListener('click', openPanel);
+  closePanelBtn.addEventListener('click', closePanel);
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) closePanel();
+  });
+
+  tabBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.filter = btn.getAttribute('data-filter');
+      renderPanelList();
+    });
+  });
+
+  searchInput.addEventListener('input', function(){
+    state.search = searchInput.value.trim().toLowerCase();
+    renderPanelList();
+  });
+
+  addToggleBtn.addEventListener('click', function(){
+    addForm.classList.add('open');
+    newTitleInput.focus();
+  });
+  cancelAddBtn.addEventListener('click', function(){
+    addForm.classList.remove('open');
+    newTitleInput.value = '';
+    newAuthorInput.value = '';
+    newGenreInput.value = '';
+  });
+  saveAddBtn.addEventListener('click', addNewBook);
+  newGenreInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') addNewBook();
+  });
+
+  function nextCustomId(){
+    var maxId = state.books.reduce(function(m,b){ return Math.max(m, b.id); }, 0);
+    return maxId + 1;
+  }
+
+  function addNewBook(){
+    var title = newTitleInput.value.trim();
+    var author = newAuthorInput.value.trim();
+    var genre = newGenreInput.value.trim();
+    if(!title){
+      newTitleInput.focus();
+      return;
+    }
+    var book = {
+      id: nextCustomId(),
+      title: title,
+      author: author,
+      genre: genre || 'Adicionado por você',
+      custom: true
+    };
+    state.books.push(book);
+    persistCustomBooks();
+    newTitleInput.value = '';
+    newAuthorInput.value = '';
+    newGenreInput.value = '';
+    addForm.classList.remove('open');
+    showToast('"' + title + '" adicionado à lista');
+    renderPanelStats();
+    renderPanelList();
+    renderFooterStats();
+    renderIdleOrEmpty();
+    renderGenreChip();
+  }
+
+  function removeBook(id){
+    state.books = state.books.filter(function(b){ return b.id !== id; });
+    state.readIds.delete(id);
+    persistCustomBooks();
+    persistReadIds();
+    renderPanelStats();
+    renderPanelList();
+    renderFooterStats();
+    renderIdleOrEmpty();
+    renderGenreChip();
+  }
+
+  function renderPanelStats(){
+    var total = state.books.length;
+    var read = state.readIds.size;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statUnread').textContent = total - read;
+    document.getElementById('statRead').textContent = read;
+  }
+
+  function filteredBooks(){
+    var list = state.books;
+    if(state.filter === 'unread'){
+      list = list.filter(function(b){ return !isRead(b.id); });
+    }else if(state.filter === 'read'){
+      list = list.filter(function(b){ return isRead(b.id); });
+    }
+    if(state.search){
+      list = list.filter(function(b){
+        return b.title.toLowerCase().indexOf(state.search) !== -1 ||
+          (b.author || '').toLowerCase().indexOf(state.search) !== -1;
+      });
+    }
+    return list;
+  }
+
+  function renderPanelList(){
+    var list = filteredBooks();
+    panelList.innerHTML = '';
+    if(list.length === 0){
+      panelList.appendChild(el('<div class="panel-empty">Nenhum livro encontrado.</div>'));
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    list.forEach(function(book){
+      var read = isRead(book.id);
+      var row = el('<div class="book-row"></div>');
+
+      var check = el('<button class="book-check' + (read ? ' checked' : '') + '" aria-label="Marcar como lido"></button>');
+      check.innerHTML = checkIconSvg;
+      check.addEventListener('click', function(){
+        if(isRead(book.id)){
+          state.readIds.delete(book.id);
+        }else{
+          state.readIds.add(book.id);
+        }
+        persistReadIds();
+        renderPanelStats();
+        renderPanelList();
+        renderFooterStats();
+        renderIdleOrEmpty();
+      });
+
+      var info = el('<div class="book-info' + (read ? ' read' : '') + '"></div>');
+      var bt = document.createElement('div');
+      bt.className = 'bt';
+      bt.textContent = book.title;
+      var ba = document.createElement('div');
+      ba.className = 'ba';
+      ba.textContent = book.author || 'Autor desconhecido';
+      info.appendChild(bt);
+      info.appendChild(ba);
+      if(book.genre){
+        var bg = document.createElement('div');
+        bg.className = 'bg';
+        bg.textContent = book.genre;
+        info.appendChild(bg);
+      }
+
+      row.appendChild(check);
+      row.appendChild(info);
+
+      if(book.custom){
+        var del = el('<button class="book-del" aria-label="Remover livro"></button>');
+        del.innerHTML = trashIconSvg;
+        del.addEventListener('click', function(){
+          removeBook(book.id);
+        });
+        row.appendChild(del);
+      }
+
+      frag.appendChild(row);
+    });
+    panelList.appendChild(frag);
+  }
+
+  // ---------- Genre filter ----------
+  var genreOverlay = document.getElementById('genreOverlay');
+  var genreChipBtn = document.getElementById('genreChipBtn');
+  var genreChipLabel = document.getElementById('genreChipLabel');
+  var closeGenreBtn = document.getElementById('closeGenreBtn');
+  var doneGenreBtn = document.getElementById('doneGenreBtn');
+  var selectAllGenresBtn = document.getElementById('selectAllGenresBtn');
+  var clearGenresBtn = document.getElementById('clearGenresBtn');
+  var genreList = document.getElementById('genreList');
+
+  function openGenrePanel(){
+    genreOverlay.classList.add('open');
+    renderGenreList();
+  }
+  function closeGenrePanel(){
+    genreOverlay.classList.remove('open');
+  }
+  genreChipBtn.addEventListener('click', openGenrePanel);
+  closeGenreBtn.addEventListener('click', closeGenrePanel);
+  doneGenreBtn.addEventListener('click', closeGenrePanel);
+  genreOverlay.addEventListener('click', function(e){
+    if(e.target === genreOverlay) closeGenrePanel();
+  });
+
+  selectAllGenresBtn.addEventListener('click', function(){
+    state.excludedGenres.clear();
+    persistExcludedGenres();
+    renderGenreList();
+    renderGenreChip();
+    renderIdleOrEmpty();
+  });
+  clearGenresBtn.addEventListener('click', function(){
+    state.excludedGenres = new Set(allGenres());
+    persistExcludedGenres();
+    renderGenreList();
+    renderGenreChip();
+    renderIdleOrEmpty();
+  });
+
+  function renderGenreChip(){
+    var genres = allGenres();
+    var includedCount = genres.filter(isGenreIncluded).length;
+    if(includedCount === genres.length){
+      genreChipLabel.textContent = 'Todos os gêneros';
+      genreChipBtn.classList.remove('active');
+    }else{
+      genreChipLabel.textContent = includedCount + ' de ' + genres.length + ' gêneros';
+      genreChipBtn.classList.add('active');
+    }
+  }
+
+  function renderGenreList(){
+    var genres = allGenres();
+    genreList.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    genres.forEach(function(genre){
+      var included = isGenreIncluded(genre);
+      var countInGenre = state.books.filter(function(b){ return bookGenre(b) === genre; }).length;
+      var row = el('<div class="book-row"></div>');
+      var check = el('<button class="book-check' + (included ? ' checked' : '') + '" aria-label="Incluir gênero"></button>');
+      check.innerHTML = checkIconSvg;
+      check.addEventListener('click', function(){
+        if(isGenreIncluded(genre)){
+          state.excludedGenres.add(genre);
+        }else{
+          state.excludedGenres.delete(genre);
+        }
+        persistExcludedGenres();
+        renderGenreList();
+        renderGenreChip();
+        renderIdleOrEmpty();
+      });
+      var info = el('<div class="book-info"></div>');
+      var bt = document.createElement('div');
+      bt.className = 'bt';
+      bt.textContent = genre;
+      var ba = document.createElement('div');
+      ba.className = 'ba';
+      ba.textContent = countInGenre + (countInGenre === 1 ? ' livro' : ' livros');
+      info.appendChild(bt);
+      info.appendChild(ba);
+      row.appendChild(check);
+      row.appendChild(info);
+      row.addEventListener('click', function(e){
+        if(e.target === check || check.contains(e.target)) return;
+        check.click();
+      });
+      frag.appendChild(row);
+    });
+    genreList.appendChild(frag);
+  }
+
+  // ---------- Feedback ----------
+  var feedbackOverlay = document.getElementById('feedbackOverlay');
+  var openFeedbackBtn = document.getElementById('openFeedbackBtn');
+  var closeFeedbackBtn = document.getElementById('closeFeedbackBtn');
+  var sendFeedbackBtn = document.getElementById('sendFeedbackBtn');
+  var feedbackName = document.getElementById('feedbackName');
+  var feedbackText = document.getElementById('feedbackText');
+  var FEEDBACK_EMAIL = 'sorteadorlivro@gmail.com';
+
+  function openFeedback(){
+    feedbackOverlay.classList.add('open');
+    setTimeout(function(){ feedbackText.focus(); }, 150);
+  }
+  function closeFeedback(){
+    feedbackOverlay.classList.remove('open');
+  }
+  openFeedbackBtn.addEventListener('click', openFeedback);
+  closeFeedbackBtn.addEventListener('click', closeFeedback);
+  feedbackOverlay.addEventListener('click', function(e){
+    if(e.target === feedbackOverlay) closeFeedback();
+  });
+
+  sendFeedbackBtn.addEventListener('click', function(){
+    var msg = feedbackText.value.trim();
+    if(!msg){
+      feedbackText.focus();
+      return;
+    }
+    var name = feedbackName.value.trim();
+    var subject = 'Sugestão de melhoria - Sortear Livro';
+    var bodyLines = [];
+    if(name) bodyLines.push('Nome: ' + name);
+    bodyLines.push('');
+    bodyLines.push(msg);
+    var body = bodyLines.join('\n');
+    var mailtoUrl = 'mailto:' + FEEDBACK_EMAIL +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(body);
+    window.location.href = mailtoUrl;
+    showToast('Abrindo seu e-mail para enviar a sugestão...');
+    feedbackText.value = '';
+    feedbackName.value = '';
+    setTimeout(closeFeedback, 600);
+  });
+
+  // ---------- Toast ----------
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){
+      toastEl.classList.remove('show');
+    }, 2200);
+  }
+
+  // ---------- Init ----------
+  loadState();
+})();
+</script>
 </body>
 </html>
